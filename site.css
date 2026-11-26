@@ -512,3 +512,32 @@ section.tight{padding-block:clamp(48px,6vw,80px)}
   .cards2{grid-template-columns:minmax(0,1fr)}
   .row-ev{grid-template-columns:minmax(0,1fr)}
 }
+
+/* home v2 preview (2026-11-26, ideas from stockbabie.com in our look): role list, marquee, Meet BNice path, program
+   cards with a price corner. Added only; nothing above changes. */
+.roles{display:flex;flex-wrap:wrap;gap:8px 18px;font:500 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--t3)}
+.roles span:not(:last-child)::after{content:"·";margin-left:18px;color:var(--cyan)}
+.marquee{overflow:hidden;border-block:1px solid var(--line);background:var(--ground-2);padding-block:18px}
+.marquee .track{display:flex;width:max-content;gap:0;animation:marq 38s linear infinite}
+.marquee span{font:300 clamp(20px,2.6vw,30px)/1 var(--display);letter-spacing:-.01em;color:var(--t1);white-space:nowrap;padding-inline:28px}
+.marquee span:nth-child(even){color:var(--cyan)}
+@keyframes marq{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marquee .track{animation:none}}
+.meet{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:clamp(32px,5vw,72px);align-items:start}
+.meet-me{display:grid;gap:20px}
+.meet-me img{width:min(260px,70%);border-radius:50%}
+.path{display:grid;gap:0;border-top:1px solid var(--line)}
+.path>div{display:grid;grid-template-columns:64px minmax(0,1fr);gap:18px;padding:22px 0;border-bottom:1px solid var(--line)}
+.path .n{font:300 34px/1 var(--display);color:var(--cyan)}
+.path h3{font-size:21px;margin-bottom:6px}
+.path p{font-size:15.5px;color:var(--t3)}
+.programs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.prog{position:relative;display:flex;flex-direction:column;gap:14px;border:1px solid var(--line-2);border-radius:16px;padding:22px;background:var(--panel);transition:border-color .2s ease}
+.prog:hover{border-color:var(--t4)}
+.prog .tagp{position:absolute;top:16px;right:16px;font:500 12px/1 var(--mono);letter-spacing:.06em;color:#07090B;background:var(--mint);padding:7px 10px;border-radius:999px}
+.prog .pic{aspect-ratio:16/10;border-radius:10px;overflow:hidden;background:#000;border:1px solid var(--line)}
+.prog .pic img{width:100%;height:100%;object-fit:cover;object-position:top}
+.prog h3{font-size:22px;padding-right:90px}
+.prog p{font-size:15px;color:var(--t3)}
+.prog .go-arrow{margin-top:auto;font:500 13px/1 var(--mono);color:var(--t2)}
+@media (max-width:860px){.meet{grid-template-columns:minmax(0,1fr)}.programs{grid-template-columns:minmax(0,1fr)}}
