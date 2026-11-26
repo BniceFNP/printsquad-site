@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calendar | PrintSquad</title>
+<meta name="description" content="When PrintSquad trades live, the Friday PrintSquad x Stock Junkies session, and every class and event.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<div class="tape" aria-hidden="true"><div class="tape-track">
+  <span><b>LIVE TRADING</b> EVERY MARKET DAY</span><span><b>LEVELS POSTED</b> 7:00 AM ET</span><span><b>380+ NAMES</b> SCANNED DAILY</span><span><b>SPY · QQQ · IWM</b> EVERY MORNING</span><span><b>DAILY + WEEKLY</b> SETUPS</span><span>LIVE GUIDANCE <i>● ON</i></span><span><b>TRADING</b> SINCE 2020</span><span><b>1 ON 1 WITH BRANDON</b> $150 / HOUR</span><span><b>50% OFF</b> SKYLIT · CODE BNICEFNP</span><span><b>CODE FNP</b> TRADEIFY</span>
+  <span><b>LIVE TRADING</b> EVERY MARKET DAY</span><span><b>LEVELS POSTED</b> 7:00 AM ET</span><span><b>380+ NAMES</b> SCANNED DAILY</span><span><b>SPY · QQQ · IWM</b> EVERY MORNING</span><span><b>DAILY + WEEKLY</b> SETUPS</span><span>LIVE GUIDANCE <i>● ON</i></span><span><b>TRADING</b> SINCE 2020</span><span><b>1 ON 1 WITH BRANDON</b> $150 / HOUR</span><span><b>50% OFF</b> SKYLIT · CODE BNICEFNP</span><span><b>CODE FNP</b> TRADEIFY</span>
+</div></div>
+
+<header class="hdr"><div class="wrap">
+  <a class="brand" href="/">PrintSquad <s>|</s> BNice_FNP</a>
+  <nav class="nav" aria-label="Site"><a href="/join/">Join</a><a href="/calendar/" aria-current="page">Calendar</a><div class="dd"><a class="dd-btn" href="/learn/" aria-haspopup="true">Learn<i aria-hidden="true">▾</i></a><div class="dd-menu"><a href="/learn/mentorship/"><b>Master The Market Mentorship</b><span>Live, with Brandon</span></a><a href="/learn/class/"><b>Master The Market Class</b><span>Recorded, at your pace</span></a><a href="/book/"><b>Book a 1 on 1</b><span>One hour on Zoom</span></a><a href="/aiclass/"><b>Create AI Agents</b><span>The AI Agent Toolkit</span></a></div></div><div class="dd"><a class="dd-btn" href="/tools/" aria-haspopup="true">Tools<i aria-hidden="true">▾</i></a><div class="dd-menu"><a href="/indicators/"><b>RTP Indicators</b><span>The suite for TradingView</span></a><a href="/indicators/#free"><b>Free Indicators</b><span>Free on TradingView</span></a><a href="/tools/"><b>Tools I Use</b><span>Skylit, Market Mono, prop firms</span></a></div></div><a href="https://fnptrades.com/shop/">Shop</a><a href="/members/">Sign In</a></nav>
+  <a class="btn btn-solid btn-sm" href="/join/">Join PrintSquad</a>
+</div>
+<nav class="nav-mobile" aria-label="Site"><div class="wrap"><a href="/join/">Join</a><a href="/calendar/" aria-current="page">Calendar</a><a href="/learn/">Learn</a><a href="/tools/">Tools</a><a href="https://fnptrades.com/shop/">Shop</a><a href="/members/">Sign In</a></div></nav>
+</header>
+
+<main id="top">
+<section class="page-top"><div class="wrap">
+  <div class="head">
+    <span class="eyebrow">Calendar</span>
+    <h1>When we're live, <span class="dim">and what's coming next.</span></h1>
+    <p class="lede">Live trading in the Discord every market day from 9:30 to 11:30 AM Eastern. Fridays we trade with the Stock Junkies on Zoom. Classes and events land here as they are announced.</p>
+  </div>
+</div></section>
+
+<section class="rule tight" aria-label="Session calendar"><div class="wrap" style="display:grid;gap:16px">
+  <div class="cal-box">
+    <div class="cal-top">
+      <h3 id="cal-title">Session calendar</h3>
+      <div class="cal-nav">
+        <button type="button" id="cal-prev" aria-label="Previous month">‹</button>
+        <button type="button" id="cal-today">Today</button>
+        <button type="button" id="cal-next" aria-label="Next month">›</button>
+      </div>
+      <small>All times Eastern</small>
+    </div>
+    <div class="cal-grid" id="cal-grid" role="grid"></div>
+    <div class="cal-foot">
+      <span><i class="leg live"></i>Live on Discord</span>
+      <span><i class="leg collab"></i>PrintSquad x Stock Junkies on Zoom</span>
+      <span><i class="leg class"></i>Class or event</span>
+      <span><i class="leg closed"></i>Market closed</span>
+      <span>Click a day for the details.</span>
+    </div>
+  </div>
+
+  <div class="cal-detail" id="cal-detail" aria-live="polite"></div>
+</div></section>
+
+<section class="rule tight" aria-labelledby="up-title"><div class="wrap">
+  <div class="head">
+    <span class="eyebrow">Coming up</span>
+    <h2 id="up-title">The next sessions</h2>
+  </div>
+  <div class="agenda" id="agenda"></div>
+</div></section>
+
+<script id="events-data" type="application/json">[]</script>
+<script>
+(function () {
+  // Weekly rhythm (Brandon 2026-11-25): live trading 9:30 to 11:30 AM ET, Monday to Friday, skipping market holidays.
+  // Fridays are the PrintSquad x Stock Junkies live collaboration. Classes and events come from data/events.json.
+  var HOLIDAYS = {  // NYSE full day closures
+    "2026-01-01":"New Year's Day","2026-01-19":"Martin Luther King Jr. Day","2026-02-16":"Presidents Day",
+    "2026-04-03":"Good Friday","2026-05-25":"Memorial Day","2026-06-19":"Juneteenth","2026-07-03":"Independence Day",
+    "2026-09-07":"Labor Day","2026-11-26":"Thanksgiving","2026-12-25":"Christmas",
+    "2027-01-01":"New Year's Day","2027-01-18":"Martin Luther King Jr. Day","2027-02-15":"Presidents Day",
+    "2027-03-26":"Good Friday","2027-05-31":"Memorial Day","2027-06-18":"Juneteenth","2027-07-05":"Independence Day",
+    "2027-09-06":"Labor Day","2027-11-25":"Thanksgiving","2027-12-24":"Christmas"
+  };
+  var EXTRA = [];
+  try { EXTRA = JSON.parse(document.getElementById("events-data").textContent) || []; } catch (e) {}
+
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function key(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function t12(hm) { var p = hm.split(":"), h = +p[0], m = p[1]; return (h % 12 || 12) + (m === "00" ? "" : ":" + m) + (h < 12 ? " AM" : " PM"); }
+
+  function eventsOn(d) {
+    var k = key(d), dow = d.getDay(), out = [];
+    if (HOLIDAYS[k]) out.push({ kind: "closed", title: "Market closed", sub: HOLIDAYS[k] });
+    else if (dow >= 1 && dow <= 4) out.push({ kind: "live", title: "Live on Discord", sub: "9:30 to 11:30 AM",
+      long: "Live trading with the PrintSquad, in the Discord. The open, traded together with live guidance." });
+    else if (dow === 5) out.push({ kind: "collab", title: "PS x Stock Junkies", sub: "9:30 to 11:30 AM",
+      long: "PrintSquad x Stock Junkies live day trading, on Zoom. Both rooms, one session. The Zoom link is in the members calendar after you sign in.",
+      link: "/members/", cta: "Members: get the Zoom link" });
+    EXTRA.forEach(function (e) {
+      if (e.date === k) out.push({ kind: e.kind || "class", title: e.title,
+        sub: e.start ? t12(e.start) + (e.end ? " to " + t12(e.end) : "") : "", long: e.about || "", link: e.link, cta: e.cta });
+    });
+    return out;
+  }
+
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  var view = new Date(today.getFullYear(), today.getMonth(), 1);
+  var selected = null;
+  var grid = document.getElementById("cal-grid"), detail = document.getElementById("cal-detail");
+  var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var DOW = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+
+  function evHtml(e) { return '<div class="ev ' + e.kind + '"><b>' + e.title + "</b>" + (e.sub ? "<span>" + e.sub + "</span>" : "") + "</div>"; }
+
+  function render() {
+    document.getElementById("cal-title").textContent = "Session calendar · " + MONTHS[view.getMonth()] + " " + view.getFullYear();
+    var h = DOW.map(function (d) { return '<div class="cal-dow">' + d + "</div>"; }).join("") + '<div class="cal-dow wk">THIS WEEK</div>';
+    var first = new Date(view), start = new Date(first); start.setDate(1 - first.getDay());
+    var month = view.getMonth(), wk = 0;
+    for (var row = 0; row < 6; row++) {
+      var live = 0, collab = 0, cls = 0, any = false;
+      for (var c = 0; c < 7; c++) {
+        var d = new Date(start); d.setDate(start.getDate() + row * 7 + c);
+        if (d.getMonth() !== month) { h += '<div class="cal-day empty"></div>'; continue; }
+        any = true;
+        var evs = eventsOn(d), k = key(d), isToday = +d === +today;
+        evs.forEach(function (e) { if (e.kind === "live") live++; else if (e.kind === "collab") collab++; else if (e.kind !== "closed") cls++; });
+        var top = isToday ? '<span class="today-pill"><span class="today-num">' + d.getDate() + "</span><span class=\"tw\">TODAY</span></span>" : d.getDate();
+        h += '<div class="cal-day' + (evs.length ? " has" : "") + (d < today ? " past" : "") + (selected === k ? " sel" : "") +
+             '" data-k="' + k + '" role="gridcell" tabindex="' + (evs.length ? 0 : -1) + '"><div class="d-top">' + top + "</div>" +
+             evs.map(evHtml).join("") + "</div>";
+      }
+      if (!any) { h = h.replace(/(<div class="cal-day empty"><\/div>){7}$/, ""); break; }
+      wk++;
+      var n = live + collab + cls, tot = Math.max(n, 1);
+      h += '<div class="cal-wk"><span class="wl">WEEK ' + wk + '</span><span class="wv' + (n ? " on" : "") + '">' +
+           (n ? n + " session" + (n > 1 ? "s" : "") : "Closed") + '</span><span class="wb">' +
+           '<i style="width:' + (live / tot * 100) + '%;background:var(--cyan)"></i><i style="width:' + (collab / tot * 100) + '%;background:var(--gold)"></i>' +
+           '<i style="width:' + (cls / tot * 100) + '%;background:#9BE24A"></i></span><span class="wm">' +
+           [live ? live + " live" : "", collab ? collab + " collab" : "", cls ? cls + " class" : ""].filter(Boolean).join(" · ") + "</span></div>";
+    }
+    grid.innerHTML = h;
+  }
+
+  function showDay(k) {
+    selected = k;
+    var p = k.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]), evs = eventsOn(d);
+    var label = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    detail.innerHTML = "<h3>" + label + "</h3>" + (evs.length ? '<div class="agenda">' + evs.map(function (e) {
+      return '<div class="ag"><div class="ad"><span class="dot ' + e.kind + '"></span>' + (e.sub || "") + (e.sub && e.kind !== "closed" ? "<small>Eastern time</small>" : "") +
+             '</div><div class="at"><b>' + e.title + "</b><span>" + (e.long || e.sub || "") + "</span></div>" +
+             (e.link ? '<a class="btn btn-solid btn-sm" href="' + e.link + '">' + (e.cta || "Sign up") + "</a>" : "<span></span>") + "</div>";
+    }).join("") + "</div>" : '<p class="note">Nothing scheduled this day.</p>');
+    render();
+  }
+
+  function agenda() {
+    var out = [], d = new Date(today);
+    for (var i = 0; i < 60 && out.length < 8; i++) {
+      eventsOn(d).forEach(function (e) { if (e.kind !== "closed" && out.length < 8) out.push({ d: new Date(d), e: e }); });
+      d.setDate(d.getDate() + 1);
+    }
+    document.getElementById("agenda").innerHTML = out.map(function (x) {
+      return '<div class="ag"><div class="ad"><span class="dot ' + x.e.kind + '"></span>' +
+        x.d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) + "<small>" + (x.e.sub || "") + " ET</small></div>" +
+        '<div class="at"><b>' + (x.e.kind === "collab" ? "PrintSquad x Stock Junkies" : x.e.title) + "</b><span>" + (x.e.long || "") + "</span></div>" +
+        (x.e.link ? '<a class="btn btn-ghost btn-sm" href="' + x.e.link + '">' + (x.e.cta || "Sign up") + "</a>" : "<span></span>") + "</div>";
+    }).join("");
+  }
+
+  grid.addEventListener("click", function (ev) { var c = ev.target.closest(".cal-day.has"); if (c) showDay(c.dataset.k); });
+  grid.addEventListener("keydown", function (ev) { var c = ev.target.closest(".cal-day.has"); if (c && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); showDay(c.dataset.k); } });
+  document.getElementById("cal-prev").onclick = function () { view.setMonth(view.getMonth() - 1); render(); };
+  document.getElementById("cal-next").onclick = function () { view.setMonth(view.getMonth() + 1); render(); };
+  document.getElementById("cal-today").onclick = function () { view = new Date(today.getFullYear(), today.getMonth(), 1); showDay(key(today)); };
+  showDay(key(today));
+  agenda();
+})();
+</script>
+</main>
+
+<footer><div class="wrap">
+  <div class="foot">
+    <div><div class="brand" style="margin-bottom:14px">PrintSquad <s>|</s> BNice_FNP</div><p style="font-size:14px;color:var(--t3)">A trading community built around one system: daily game plans, levels before the bell and live guidance. Run by Brandon, aka BNice, a Registered Nurse trading since 2020.</p></div>
+    <div><h4>PrintSquad</h4><ul><li><a href="/join/">Join</a></li><li><a href="/calendar/">Calendar</a></li><li><a href="/learn/mentorship/">Master The Market Mentorship</a></li><li><a href="/learn/class/">Master The Market Class</a></li><li><a href="/book/">1 on 1 with Brandon</a></li><li><a href="/aiclass/">Create AI Agents</a></li><li><a href="/indicators/">RTP Indicators</a></li><li><a href="/tools/">Tools I use</a></li><li><a href="https://fnptrades.com/shop/">Apparel</a></li><li><a href="/members/">Member sign in</a></li></ul></div>
+    <div><h4>Tools I use</h4><ul><li><a href="https://app.skylit.ai/products?ref=BNICEFNP" target="_blank" rel="sponsored noopener">Skylit · 50% off, code BNICEFNP</a></li><li><a href="https://whop.com/checkout/plan_psgRuvs8nuYvo?a=bnicefnp" target="_blank" rel="sponsored noopener">Market Mono · $40 a month</a></li><li><a href="https://tradeify.co/?ref=GKHED45U" target="_blank" rel="sponsored noopener">Tradeify · code FNP</a></li><li><a href="https://www.certafutures.com/?checkout=1&amp;ref=CF534EED9A1739" target="_blank" rel="sponsored noopener">Certa Futures · code NICE</a></li><li><a href="/tools/">All tools and deals</a></li></ul></div>
+    <div><h4>Follow</h4><ul><li><a href="https://www.instagram.com/bnice_fnp/">Instagram</a></li><li><a href="https://x.com/Bnice_X_Fnp">X</a></li><li><a href="https://www.threads.net/@bnice_fnp">Threads</a></li><li><a href="https://kick.com/bnice-fnp">Kick</a></li><li><a href="https://whop.com/checkout/plan_VsYedL4dfEl0D?a=bnicefnp" target="_blank" rel="noopener">StockJunkies, our sister server</a></li></ul></div>
+  </div>
+  <p class="legal">DISCLAIMER. PrintSquad | BNice_FNP provides educational content only and is not financial, investment, or trading advice. Trading options, futures and securities involves substantial risk of loss and is not suitable for every investor. Results shown are not typical and past performance is not indicative of future results. You are solely responsible for your own trading decisions.<br>Copyright © 2026. All Rights Reserved.</p>
+</div></footer>
+<script>
+document.querySelectorAll(".coupon button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy code"; }, 1600); };
+    if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.code).then(done, done); else done();
+  });
+});
+</script>
+</body>
+</html>
