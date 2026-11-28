@@ -29,7 +29,7 @@
     <span class="eyebrow">Learn · Ebook</span>
     <h1>PrintSquad: The <span style="color:var(--cyan)">RTP</span> System</h1>
     <p class="lede"><b class="hl">A Guide to Mastering Technical Analysis.</b> Everything I teach, one idea per page: candles and the Strat, structure, levels, supply and demand, timeframes, then my own system on the RTP Ribbon. 165 pages, every chart real market data.</p>
-    <div class="cta"><a class="btn btn-solid" href="https://buy.stripe.com/3cIcN5cuXciz6aB6KN8og03">Purchase the Ebook <span aria-hidden="true">→</span></a><span style="margin-left:14px;font:500 13px/1 var(--mono);color:var(--t2)">$35 · A $100 value.</span></div>
+    <div class="cta"><a class="btn btn-solid" data-ebook="1" href="https://buy.stripe.com/3cIcN5cuXciz6aB6KN8og03">Purchase the Ebook <span aria-hidden="true">→</span></a><span style="margin-left:14px;font:500 13px/1 var(--mono);color:var(--t2)">$35 · A $100 value.</span></div>
   </div>
 </div></section>
 
@@ -61,7 +61,7 @@
 
   <div class="enroll">
     <div><strong>The RTP System Ebook.</strong><span>Education only, not financial advice. Pay once, keep it.</span></div>
-    <a class="btn btn-solid" href="https://buy.stripe.com/3cIcN5cuXciz6aB6KN8og03">Purchase the Ebook <span aria-hidden="true">→</span></a><span style="margin-left:14px;font:500 13px/1 var(--mono);color:var(--t2)">$35 · A $100 value.</span>
+    <a class="btn btn-solid" data-ebook="1" href="https://buy.stripe.com/3cIcN5cuXciz6aB6KN8og03">Purchase the Ebook <span aria-hidden="true">→</span></a><span style="margin-left:14px;font:500 13px/1 var(--mono);color:var(--t2)">$35 · A $100 value.</span>
   </div>
 </div></section>
 </main>
@@ -76,6 +76,21 @@
   <p class="legal">DISCLAIMER. PrintSquad | BNice_FNP provides educational content only and is not financial, investment, or trading advice. Trading options, futures and securities involves substantial risk of loss and is not suitable for every investor. Results shown are not typical and past performance is not indicative of future results. You are solely responsible for your own trading decisions.<br>Copyright © 2026. All Rights Reserved.</p>
 </div></footer>
 <script>
+// Ebook tracking (Brandon 2026-11-27): a link like /learn/rtp-system/?src=threads passes the channel to Stripe checkout,
+// so each Ebook sale shows where it came from (client_reference_id + utm_source on the payment).
+(function () {
+  var ok = ["x", "threads", "instagram", "youtube", "kick", "email", "discord", "site"];
+  var q = new URLSearchParams(location.search);
+  var src = (q.get("src") || q.get("utm_source") || "").toLowerCase();
+  if (ok.indexOf(src) < 0) return;
+  document.querySelectorAll("a[data-ebook]").forEach(function (a) {
+    var u = new URL(a.href);
+    u.searchParams.set("client_reference_id", "ebook_" + src);
+    u.searchParams.set("utm_source", src);
+    u.searchParams.set("utm_campaign", "ebook");
+    a.href = u.toString();
+  });
+})();
 document.querySelectorAll(".coupon button").forEach(function (b) {
   b.addEventListener("click", function () {
     var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy code"; }, 1600); };

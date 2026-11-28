@@ -57,6 +57,21 @@
   <p class="legal">DISCLAIMER. PrintSquad | BNice_FNP provides educational content only and is not financial, investment, or trading advice. Trading options, futures and securities involves substantial risk of loss and is not suitable for every investor. Results shown are not typical and past performance is not indicative of future results. You are solely responsible for your own trading decisions.<br>Copyright © 2026. All Rights Reserved.</p>
 </div></footer>
 <script>
+// Ebook tracking (Brandon 2026-11-27): a link like /learn/rtp-system/?src=threads passes the channel to Stripe checkout,
+// so each Ebook sale shows where it came from (client_reference_id + utm_source on the payment).
+(function () {
+  var ok = ["x", "threads", "instagram", "youtube", "kick", "email", "discord", "site"];
+  var q = new URLSearchParams(location.search);
+  var src = (q.get("src") || q.get("utm_source") || "").toLowerCase();
+  if (ok.indexOf(src) < 0) return;
+  document.querySelectorAll("a[data-ebook]").forEach(function (a) {
+    var u = new URL(a.href);
+    u.searchParams.set("client_reference_id", "ebook_" + src);
+    u.searchParams.set("utm_source", src);
+    u.searchParams.set("utm_campaign", "ebook");
+    a.href = u.toString();
+  });
+})();
 document.querySelectorAll(".coupon button").forEach(function (b) {
   b.addEventListener("click", function () {
     var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy code"; }, 1600); };
