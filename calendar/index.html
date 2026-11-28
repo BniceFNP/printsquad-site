@@ -41,44 +41,43 @@
   </div>
 </div></section>
 
-<section class="rule tight" aria-label="Session calendar"><div class="wrap" style="display:grid;gap:16px">
-  <div class="cal-box">
-    <div class="cal-top">
-      <h3 id="cal-title">Session calendar</h3>
-      <div class="cal-nav">
-        <button type="button" id="cal-prev" aria-label="Previous month">‹</button>
-        <button type="button" id="cal-today">Today</button>
-        <button type="button" id="cal-next" aria-label="Next month">›</button>
+<section class="rule tight" aria-label="Session calendar"><div class="wrap kc-wrap">
+  <div class="kc">
+    <div class="kc-main">
+      <div class="kc-top">
+        <h3 id="kc-title">Session calendar</h3>
+        <div class="kc-nav">
+          <button type="button" id="kc-prev" aria-label="Previous month">‹</button>
+          <button type="button" id="kc-today">Today</button>
+          <button type="button" id="kc-next" aria-label="Next month">›</button>
+        </div>
       </div>
-      <small>All times Eastern</small>
+      <div class="kc-grid" id="kc-grid" role="grid"></div>
+      <div class="kc-legend">
+        <span>⚡ Live trading</span>
+        <span>📚 Live class</span>
+        <span>🎓 Recorded class</span>
+        <span>🎤 Event or AMA</span>
+        <span class="tz">All times Eastern</span>
+      </div>
     </div>
-    <div class="cal-grid" id="cal-grid" role="grid"></div>
-    <div class="cal-foot">
-      <span><i class="leg live"></i>Live on Discord</span>
-      <span><i class="leg collab"></i>PrintSquad x Stock Junkies on Zoom</span>
-      <span><i class="leg class"></i>Class or event</span>
-      <span><i class="leg closed"></i>Market closed</span>
-      <span>Click a day for the details.</span>
-    </div>
+    <aside class="kc-side" aria-live="polite">
+      <div id="kc-day"></div>
+      <div class="kc-up">
+        <h4>Up next</h4>
+        <div id="kc-list"></div>
+      </div>
+    </aside>
   </div>
-
-  <div class="cal-detail" id="cal-detail" aria-live="polite"></div>
-</div></section>
-
-<section class="rule tight" aria-labelledby="up-title"><div class="wrap">
-  <div class="head">
-    <span class="eyebrow">Coming up</span>
-    <h2 id="up-title">The next sessions</h2>
-  </div>
-  <div class="agenda" id="agenda"></div>
 </div></section>
 
 <script id="events-data" type="application/json">[]</script>
 <script>
 (function () {
-  // Weekly rhythm (Brandon 2026-11-25): live trading 9:30 to 11:30 AM ET, Monday to Friday, skipping market holidays.
-  // Fridays are the PrintSquad x Stock Junkies live collaboration. Classes and events come from data/events.json.
-  var HOLIDAYS = {  // NYSE full day closures
+  // Brandon 2026-11-28: same calendar, better looking. Sovereign style day cards, no "this week" counts; the side
+  // column is the selected day plus what is up next. Weekly rhythm unchanged: Mon to Thu live on Discord 9:30 to 11:30
+  // AM ET, Fridays PrintSquad x Stock Junkies on Zoom, market holidays closed, classes from data/events.json.
+  var HOLIDAYS = {
     "2026-01-01":"New Year's Day","2026-01-19":"Martin Luther King Jr. Day","2026-02-16":"Presidents Day",
     "2026-04-03":"Good Friday","2026-05-25":"Memorial Day","2026-06-19":"Juneteenth","2026-07-03":"Independence Day",
     "2026-09-07":"Labor Day","2026-11-26":"Thanksgiving","2026-12-25":"Christmas",
@@ -88,98 +87,83 @@
   };
   var EXTRA = [];
   try { EXTRA = JSON.parse(document.getElementById("events-data").textContent) || []; } catch (e) {}
-
   function pad(n) { return (n < 10 ? "0" : "") + n; }
   function key(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
   function t12(hm) { var p = hm.split(":"), h = +p[0], m = p[1]; return (h % 12 || 12) + (m === "00" ? "" : ":" + m) + (h < 12 ? " AM" : " PM"); }
 
   function eventsOn(d) {
     var k = key(d), dow = d.getDay(), out = [];
-    if (HOLIDAYS[k]) out.push({ kind: "closed", title: "Market closed", sub: HOLIDAYS[k] });
-    else if (dow >= 1 && dow <= 4) out.push({ kind: "live", title: "Live on Discord", sub: "9:30 to 11:30 AM",
-      long: "Live trading with the PrintSquad, in the Discord. The open, traded together with live guidance." });
-    else if (dow === 5) out.push({ kind: "collab", title: "PS x Stock Junkies", sub: "9:30 to 11:30 AM",
-      long: "PrintSquad x Stock Junkies live day trading, on Zoom. Both rooms, one session. The Zoom link is in the members calendar after you sign in.",
-      link: "/members/", cta: "Members: get the Zoom link" });
+    if (HOLIDAYS[k]) out.push({ kind: "closed", short: "Closed", title: "Market closed", time: "", where: HOLIDAYS[k] });
+    else if (dow >= 1 && dow <= 4) out.push({ kind: "live", short: "Live Trading", title: "Live Trading", time: "9:30 AM", end: "11:30 AM", where: "Discord",
+      about: "The open, traded together in the Discord with live guidance." });
+    else if (dow === 5) out.push({ kind: "collab", short: "PS x Stock Junkies", title: "PrintSquad x Stock Junkies Live Trading", time: "9:30 AM", end: "11:30 AM", where: "Zoom",
+      about: "Both rooms, one session, live on Zoom.", link: "/members/", cta: "Members: Zoom link" });
     EXTRA.forEach(function (e) {
-      if (e.date === k) out.push({ kind: e.kind || "class", title: e.title,
-        sub: e.start ? t12(e.start) + (e.end ? " to " + t12(e.end) : "") : "", long: e.about || "", link: e.link, cta: e.cta });
+      if (e.date === k) out.push({ kind: e.kind || "class", short: e.short || e.title, title: e.title,
+        time: e.start ? t12(e.start) : "", end: e.end ? t12(e.end) : "", where: e.where || "", about: e.about || "", link: e.link, cta: e.cta });
     });
     return out;
   }
 
   var today = new Date(); today.setHours(0, 0, 0, 0);
-  var view = new Date(today.getFullYear(), today.getMonth(), 1);
-  var selected = null;
-  var grid = document.getElementById("cal-grid"), detail = document.getElementById("cal-detail");
+  var view = new Date(today.getFullYear(), today.getMonth(), 1), selected = key(today);
+  var qm = /[?&]m=(\d{4})-(\d{2})/.exec(location.search); if (qm) view = new Date(+qm[1], +qm[2] - 1, 1);
+  var grid = document.getElementById("kc-grid");
   var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  var DOW = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  var DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-  function evHtml(e) { return '<div class="ev ' + e.kind + '"><b>' + e.title + "</b>" + (e.sub ? "<span>" + e.sub + "</span>" : "") + "</div>"; }
+  // Brandon 2026-11-28: like Google Calendar, every event is one small line with its emoji, so a day can hold several.
+  // ⚡ live trading (Discord and the Friday Zoom), 📚 a live class, 🎓 a recorded class, 🎤 an event or AMA.
+  var ICON = { live: "⚡", collab: "⚡", class: "📚", live_class: "📚", recorded: "🎓", event: "🎤", closed: "" };
+  function cell(d) {
+    var evs = eventsOn(d), k = key(d), isToday = +d === +today;
+    var cls = "kc-day" + (d < today ? " past" : "") + (selected === k ? " sel" : "");
+    var num = isToday ? '<span class="kc-num today"><b>' + d.getDate() + "</b>Today</span>" : '<span class="kc-num">' + d.getDate() + "</span>";
+    var chips = evs.slice(0, 3).map(function (e) {
+      return '<span class="kc-chip k-' + e.kind + '" title="' + e.title.replace(/"/g, "") + '">' + (ICON[e.kind] ? '<i>' + ICON[e.kind] + "</i>" : "") + e.short + "</span>";
+    }).join("") + (evs.length > 3 ? '<span class="kc-more">+' + (evs.length - 3) + " more</span>" : "");
+    return '<div class="' + cls + '" data-k="' + k + '" role="gridcell" tabindex="0">' + num + chips + "</div>";
+  }
 
   function render() {
-    document.getElementById("cal-title").textContent = "Session calendar · " + MONTHS[view.getMonth()] + " " + view.getFullYear();
-    var h = DOW.map(function (d) { return '<div class="cal-dow">' + d + "</div>"; }).join("") + '<div class="cal-dow wk">THIS WEEK</div>';
-    var first = new Date(view), start = new Date(first); start.setDate(1 - first.getDay());
-    var month = view.getMonth(), wk = 0;
-    for (var row = 0; row < 6; row++) {
-      var live = 0, collab = 0, cls = 0, any = false;
-      for (var c = 0; c < 7; c++) {
-        var d = new Date(start); d.setDate(start.getDate() + row * 7 + c);
-        if (d.getMonth() !== month) { h += '<div class="cal-day empty"></div>'; continue; }
-        any = true;
-        var evs = eventsOn(d), k = key(d), isToday = +d === +today;
-        evs.forEach(function (e) { if (e.kind === "live") live++; else if (e.kind === "collab") collab++; else if (e.kind !== "closed") cls++; });
-        var top = isToday ? '<span class="today-pill"><span class="today-num">' + d.getDate() + "</span><span class=\"tw\">TODAY</span></span>" : d.getDate();
-        h += '<div class="cal-day' + (evs.length ? " has" : "") + (d < today ? " past" : "") + (selected === k ? " sel" : "") +
-             '" data-k="' + k + '" role="gridcell" tabindex="' + (evs.length ? 0 : -1) + '"><div class="d-top">' + top + "</div>" +
-             evs.map(evHtml).join("") + "</div>";
-      }
-      if (!any) { h = h.replace(/(<div class="cal-day empty"><\/div>){7}$/, ""); break; }
-      wk++;
-      var n = live + collab + cls, tot = Math.max(n, 1);
-      h += '<div class="cal-wk"><span class="wl">WEEK ' + wk + '</span><span class="wv' + (n ? " on" : "") + '">' +
-           (n ? n + " session" + (n > 1 ? "s" : "") : "Closed") + '</span><span class="wb">' +
-           '<i style="width:' + (live / tot * 100) + '%;background:var(--cyan)"></i><i style="width:' + (collab / tot * 100) + '%;background:var(--gold)"></i>' +
-           '<i style="width:' + (cls / tot * 100) + '%;background:#9BE24A"></i></span><span class="wm">' +
-           [live ? live + " live" : "", collab ? collab + " collab" : "", cls ? cls + " class" : ""].filter(Boolean).join(" · ") + "</span></div>";
+    document.getElementById("kc-title").textContent = MONTHS[view.getMonth()] + " " + view.getFullYear();
+    var h = DOW.map(function (x) { return '<div class="kc-dow">' + x + "</div>"; }).join("");
+    var start = new Date(view); start.setDate(1 - view.getDay());
+    for (var i = 0; i < 42; i++) {
+      var d = new Date(start); d.setDate(start.getDate() + i);
+      if (i % 7 === 0 && i > 0 && d.getMonth() !== view.getMonth()) break;
+      h += d.getMonth() === view.getMonth() ? cell(d) : '<div class="kc-day out"></div>';
     }
     grid.innerHTML = h;
   }
 
-  function showDay(k) {
-    selected = k;
-    var p = k.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]), evs = eventsOn(d);
-    var label = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-    detail.innerHTML = "<h3>" + label + "</h3>" + (evs.length ? '<div class="agenda">' + evs.map(function (e) {
-      return '<div class="ag"><div class="ad"><span class="dot ' + e.kind + '"></span>' + (e.sub || "") + (e.sub && e.kind !== "closed" ? "<small>Eastern time</small>" : "") +
-             '</div><div class="at"><b>' + e.title + "</b><span>" + (e.long || e.sub || "") + "</span></div>" +
-             (e.link ? '<a class="btn btn-solid btn-sm" href="' + e.link + '">' + (e.cta || "Sign up") + "</a>" : "<span></span>") + "</div>";
-    }).join("") + "</div>" : '<p class="note">Nothing scheduled this day.</p>');
-    render();
+  function row(d, e, big) {
+    var when = d.toLocaleDateString("en-US", { weekday: "short" }), n = d.getDate();
+    return '<div class="kc-ev k-' + e.kind + (big ? " big" : "") + '"><div class="kc-date"><span>' + when + "</span><b>" + n + "</b></div>" +
+      '<div class="kc-what"><b>' + (ICON[e.kind] ? ICON[e.kind] + " " : "") + e.title + "</b><span>" + [e.time && e.end ? e.time + " to " + e.end : e.time, e.where].filter(Boolean).join(" · ") + "</span>" +
+      (big && e.about ? "<p>" + e.about + "</p>" : "") + (e.link ? '<a class="btn btn-solid btn-sm" href="' + e.link + '">' + (e.cta || "Sign up") + "</a>" : "") + "</div></div>";
   }
 
-  function agenda() {
-    var out = [], d = new Date(today);
-    for (var i = 0; i < 60 && out.length < 8; i++) {
-      eventsOn(d).forEach(function (e) { if (e.kind !== "closed" && out.length < 8) out.push({ d: new Date(d), e: e }); });
-      d.setDate(d.getDate() + 1);
+  function side() {
+    var p = selected.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]), evs = eventsOn(d);
+    var label = +d === +today ? "Today" : d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    document.getElementById("kc-day").innerHTML = '<h4>' + label + "</h4>" +
+      (evs.length ? evs.map(function (e) { return row(d, e, true); }).join("") : '<p class="kc-none">Nothing scheduled.</p>');
+    var out = [], x = new Date(today); x.setDate(x.getDate() + 1);
+    for (var i = 0; i < 45 && out.length < 5; i++) {
+      eventsOn(x).forEach(function (e) { if (e.kind !== "closed" && out.length < 5) out.push(row(new Date(x), e, false)); });
+      x.setDate(x.getDate() + 1);
     }
-    document.getElementById("agenda").innerHTML = out.map(function (x) {
-      return '<div class="ag"><div class="ad"><span class="dot ' + x.e.kind + '"></span>' +
-        x.d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) + "<small>" + (x.e.sub || "") + " ET</small></div>" +
-        '<div class="at"><b>' + (x.e.kind === "collab" ? "PrintSquad x Stock Junkies" : x.e.title) + "</b><span>" + (x.e.long || "") + "</span></div>" +
-        (x.e.link ? '<a class="btn btn-ghost btn-sm" href="' + x.e.link + '">' + (x.e.cta || "Sign up") + "</a>" : "<span></span>") + "</div>";
-    }).join("");
+    document.getElementById("kc-list").innerHTML = out.join("");
   }
 
-  grid.addEventListener("click", function (ev) { var c = ev.target.closest(".cal-day.has"); if (c) showDay(c.dataset.k); });
-  grid.addEventListener("keydown", function (ev) { var c = ev.target.closest(".cal-day.has"); if (c && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); showDay(c.dataset.k); } });
-  document.getElementById("cal-prev").onclick = function () { view.setMonth(view.getMonth() - 1); render(); };
-  document.getElementById("cal-next").onclick = function () { view.setMonth(view.getMonth() + 1); render(); };
-  document.getElementById("cal-today").onclick = function () { view = new Date(today.getFullYear(), today.getMonth(), 1); showDay(key(today)); };
-  showDay(key(today));
-  agenda();
+  function pick(k) { selected = k; render(); side(); }
+  grid.addEventListener("click", function (ev) { var c = ev.target.closest(".kc-day[data-k]"); if (c) pick(c.dataset.k); });
+  grid.addEventListener("keydown", function (ev) { var c = ev.target.closest(".kc-day[data-k]"); if (c && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); pick(c.dataset.k); } });
+  document.getElementById("kc-prev").onclick = function () { view.setMonth(view.getMonth() - 1); render(); };
+  document.getElementById("kc-next").onclick = function () { view.setMonth(view.getMonth() + 1); render(); };
+  document.getElementById("kc-today").onclick = function () { view = new Date(today.getFullYear(), today.getMonth(), 1); pick(key(today)); };
+  render(); side();
 })();
 </script>
 </main>
@@ -200,7 +184,8 @@
   var ok = ["x", "threads", "instagram", "youtube", "kick", "email", "discord", "site"];
   var q = new URLSearchParams(location.search);
   var src = (q.get("src") || q.get("utm_source") || "").toLowerCase();
-  if (ok.indexOf(src) < 0) return;
+  // a sub tag counts too: discord_shop, discord_edu (2026-11-28, one link per Discord channel)
+  if (!/^[a-z0-9_](1, 30)$/.test(src) || ok.indexOf(src.split("_")[0]) < 0) return;
   document.querySelectorAll("a[data-ebook]").forEach(function (a) {
     var u = new URL(a.href);
     u.searchParams.set("client_reference_id", "ebook_" + src);

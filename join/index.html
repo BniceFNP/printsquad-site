@@ -125,7 +125,8 @@
   var ok = ["x", "threads", "instagram", "youtube", "kick", "email", "discord", "site"];
   var q = new URLSearchParams(location.search);
   var src = (q.get("src") || q.get("utm_source") || "").toLowerCase();
-  if (ok.indexOf(src) < 0) return;
+  // a sub tag counts too: discord_shop, discord_edu (2026-11-28, one link per Discord channel)
+  if (!/^[a-z0-9_](1, 30)$/.test(src) || ok.indexOf(src.split("_")[0]) < 0) return;
   document.querySelectorAll("a[data-ebook]").forEach(function (a) {
     var u = new URL(a.href);
     u.searchParams.set("client_reference_id", "ebook_" + src);
